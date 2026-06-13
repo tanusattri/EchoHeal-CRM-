@@ -3,24 +3,20 @@ import httpx
 import pandas as pd
 
 # Dynamic link that reads your cloud setting, falls back to local
-BACKEND_URL = st.secrets.get("BACKEND_URL", "http://127.0.0.1:8000")
-
-# ====================================
-# DATA FETCHING HOOKS
-# ====================================
+BACKEND_URL = st.secrets.get("BACKEND_URL", "https://echoheal-backend-v2.onrender.com")
 
 def get_analytics():
     try:
-        response = httpx.get(f"{BACKEND_URL}/api/analytics/overview", timeout=10)
+        response = httpx.get(f"{BACKEND_URL}/api/analytics/overview", timeout=15)
         if response.status_code == 200:
             return response.json()
     except Exception as e:
         st.error(f"Analytics Error: {str(e)}")
-    return {}
+    return {"customers": 0, "orders": 0, "revenue": 0, "high_value_customers": 0}
 
 def get_customers():
     try:
-        response = httpx.get(f"{BACKEND_URL}/api/customers", timeout=10)
+        response = httpx.get(f"{BACKEND_URL}/api/customers", timeout=15)
         if response.status_code == 200:
             return response.json()
     except Exception as e:
@@ -29,7 +25,7 @@ def get_customers():
 
 def get_inactive_customers():
     try:
-        response = httpx.get(f"{BACKEND_URL}/api/segments/inactive", timeout=10)
+        response = httpx.get(f"{BACKEND_URL}/api/segments/inactive", timeout=15)
         if response.status_code == 200:
             return response.json()
     except Exception as e:
@@ -38,7 +34,7 @@ def get_inactive_customers():
 
 def get_high_value_customers():
     try:
-        response = httpx.get(f"{BACKEND_URL}/api/segments/high-value", timeout=10)
+        response = httpx.get(f"{BACKEND_URL}/api/segments/high-value", timeout=15)
         if response.status_code == 200:
             return response.json()
     except Exception as e:
@@ -47,7 +43,7 @@ def get_high_value_customers():
 
 def get_winter_buyers():
     try:
-        response = httpx.get(f"{BACKEND_URL}/api/segments/winter-buyers", timeout=10)
+        response = httpx.get(f"{BACKEND_URL}/api/segments/winter-buyers", timeout=15)
         if response.status_code == 200:
             return response.json()
     except Exception as e:
@@ -56,13 +52,12 @@ def get_winter_buyers():
 
 def get_dashboard_data():
     try:
-        response = httpx.get(f"{BACKEND_URL}/api/dashboard/data", timeout=10)
+        response = httpx.get(f"{BACKEND_URL}/api/dashboard/data", timeout=15)
         if response.status_code == 200:
             return response.json()
     except Exception as e:
         st.error(f"Dashboard Error: {str(e)}")
     return {"logs": [], "ai_audit": []}
-
 
 # ====================================
 # AI STUDIO & CAMPAIGN EXECUTION HOOKS
@@ -70,39 +65,27 @@ def get_dashboard_data():
 
 def generate_copilot(prompt):
     try:
-        response = httpx.post(
-            f"{BACKEND_URL}/api/copilot",
-            json={"prompt": prompt},
-            timeout=60
-        )
+        response = httpx.post(f"{BACKEND_URL}/api/copilot", json={"prompt": prompt}, timeout=60)
         if response.status_code == 200:
             return response.json()
     except Exception as e:
         st.error(f"Copilot Error: {str(e)}")
-    return {}
+    return {"response": "AI could not process this request."}
 
 def generate_audience(prompt):
     try:
-        response = httpx.post(
-            f"{BACKEND_URL}/api/audience-builder",
-            json={"prompt": prompt},
-            timeout=60
-        )
+        response = httpx.post(f"{BACKEND_URL}/api/audience-builder", json={"prompt": prompt}, timeout=60)
         if response.status_code == 200:
             return response.json()
     except Exception as e:
         st.error(f"Audience Builder Error: {str(e)}")
-    return {}
+    return {"audience": "No audience generated."}
 
 def launch_campaign(campaign_name, channel, message):
     try:
         response = httpx.post(
             f"{BACKEND_URL}/api/campaigns/launch",
-            json={
-                "campaign_name": campaign_name,
-                "channel": channel,
-                "base_message": message
-            },
+            json={"campaign_name": campaign_name, "channel": channel, "base_message": message},
             timeout=120
         )
         if response.status_code == 200:

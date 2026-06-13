@@ -20,7 +20,8 @@ app = FastAPI(
 
 # Render sets its active web port inside 'PORT'. We catch it dynamically.
 RENDER_PORT = os.environ.get("PORT", "8000")
-CRM_WEBHOOK_URL = f"http://127.0.0.1:{RENDER_PORT}/api/webhooks/receipt"
+#  Force the webhook to target your live public backend directly!
+CRM_WEBHOOK_URL = "https://echoheal-backend-v2.onrender.com/api/webhooks/receipt"
 
 # ====================================================
 # MODELS

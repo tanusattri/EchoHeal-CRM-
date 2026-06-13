@@ -161,64 +161,34 @@ async def dashboard():
     }
 
 @app.post("/api/webhooks/receipt")
-async def receive_receipt(
-    payload: ReceiptPayload
-):
-
-    customer_id = int(
-        payload.communication_id
-    )
-
-    customer = next(
-
-        (
-            c
-            for c in CUSTOMERS
-            if c["id"] == customer_id
-        ),
-
-        None
-    )
+async def receive_receipt(payload: ReceiptPayload):
+    customer_id = int(payload.communication_id)
+    customer = next((c for c in CUSTOMERS if c["id"] == customer_id), None)
 
     if not customer:
+        return {"error": "customer not found"}
 
-        return {
-            "error":
-            "customer not found"
-        }
-
-    log_entry = next(
-
-        (
-            log
-            for log in DATA_LOGS
-            if log["customer_name"]
-            == customer["name"]
-        ),
-
-        None
-    )
+    log_entry = next((log for log in DATA_LOGS if log["customer_name"] == customer["name"]), None)
 
     if not log_entry:
+        return {"error": "log not found"}
 
-        return {
-            "error":
-            "log not found"
-        }
-
+    # Update base status
     log_entry["delivery_status"] = payload.status
-    print(
-        f"WEBHOOK UPDATE -> {customer['name']} | "
-        f"{log_entry['delivery_status']}"
-    )
-    if payload.status == "delivered":
-        log_entry["delivery_status"] = random.choice(["delivered", "read"])
-    elif payload.status == "read":
-        log_entry["delivery_status"] = "read"
-    elif payload.status == "clicked":
-        log_entry["delivery_status"] = "clicked"
-    elif payload.status == "failed":
-        log_entry["delivery_status"] = "failed"
+
+    # 🚨 WAKE UP THE AI IF THE CHANNEL FAILED!
+    if payload.status == "failed":
+        # We trigger the background recovery worker immediately
+        await execute_ai_self_healing(
+            customer=customer,
+            original_message=log_entry["message_body"],
+            failed_channel=log_entry["current_channel"],
+            failure_reason=payload.reason or "Carrier Drop",
+            log_entry=log_entry
+        )
+
+    print(f"WEBHOOK UPDATE -> {customer['name']} | {log_entry['delivery_status']}")
+    return {"status": "processed"}
 
 # ====================================
 # ANALYTICS

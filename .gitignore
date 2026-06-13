@@ -1,0 +1,7 @@
+.env
+crm_backend/.env
+__pycache__/
+crm_backend/__pycache__/
+channel_service/__pycache__/
+*.pyc
+.streamlit/

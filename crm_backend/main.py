@@ -160,25 +160,31 @@ async def dashboard():
         "ai_audit": AI_AUDITS
     }
 
+# ====================================
+# WEBHOOK RECEIVER
+# ====================================
 @app.post("/api/webhooks/receipt")
 async def receive_receipt(payload: ReceiptPayload):
+    # Ensure ID is processed consistently as an integer
     customer_id = int(payload.communication_id)
+    
     customer = next((c for c in CUSTOMERS if c["id"] == customer_id), None)
-
     if not customer:
+        print(f"❌ Webhook Error: Customer ID {customer_id} not found!")
         return {"error": "customer not found"}
 
-    log_entry = next((log for log in DATA_LOGS if log["customer_name"] == customer["name"]), None)
-
+    # Directly match the integer customer_id against the stored log entry ID
+    log_entry = next((log for log in DATA_LOGS if int(log["communication_id"]) == customer_id), None)
     if not log_entry:
+        print(f"❌ Webhook Error: Log entry for ID {customer_id} not found in DATA_LOGS!")
         return {"error": "log not found"}
 
     # Update base status
     log_entry["delivery_status"] = payload.status
 
-    # 🚨 WAKE UP THE AI IF THE CHANNEL FAILED!
+    # Trigger AI self-healing immediately upon receiving a failure payload
     if payload.status == "failed":
-        # We trigger the background recovery worker immediately
+        print(f"🚨 Failure detected for {customer['name']}. Triggering AI Recovery...")
         await execute_ai_self_healing(
             customer=customer,
             original_message=log_entry["message_body"],
@@ -186,8 +192,7 @@ async def receive_receipt(payload: ReceiptPayload):
             failure_reason=payload.reason or "Carrier Drop",
             log_entry=log_entry
         )
-
-    print(f"WEBHOOK UPDATE -> {customer['name']} | {log_entry['delivery_status']}")
+    print(f"✅ WEBHOOK UPDATE SUCCESS -> {customer['name']} | Status: {log_entry['delivery_status']}")
     return {"status": "processed"}
 
 # ====================================

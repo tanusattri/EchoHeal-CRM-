@@ -1,8 +1,9 @@
 import streamlit as st
 import httpx
 import pandas as pd
+import os
 
-BACKEND_URL = "http://127.0.0.1:8000"
+BACKEND_URL = st.secrets.get("BACKEND_URL", "http://127.0.0.1:8000")
 
 def get_analytics():
 

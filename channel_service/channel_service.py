@@ -1,4 +1,5 @@
 import asyncio
+import os
 import random
 import httpx
 
@@ -14,24 +15,21 @@ app = FastAPI(
 )
 
 # ====================================================
-# CRM BACKEND WEBHOOK
+# CRM BACKEND WEBHOOK (DYNAMIC ROUTING)
 # ====================================================
 
-CRM_WEBHOOK_URL = (
-    "http://127.0.0.1:8000/api/webhooks/receipt"
-)
+# Render sets its active web port inside 'PORT'. We catch it dynamically.
+RENDER_PORT = os.environ.get("PORT", "8000")
+CRM_WEBHOOK_URL = f"http://127.0.0.1:{RENDER_PORT}/api/webhooks/receipt"
 
 # ====================================================
 # MODELS
 # ====================================================
 
 class ChannelPayload(BaseModel):
-
     communication_id: str
     recipient_identifier: str
-
     channel: str
-
     message_body: str
 
 
@@ -44,21 +42,19 @@ async def simulate_delivery(payload: ChannelPayload):
     # Simulate network delay
     await asyncio.sleep(3)
 
+    # Initialize safety variables to avoid UnboundLocalError
+    delivery_status = "failed"
+    failure_reason = None
+
     # 20% chance of failure
-
     if random.random() < 0.20:
-
         delivery_status = "failed"
-
-        failure_reason = (
-            "Carrier Routing Failure"
-        )
-
+        failure_reason = "Carrier Routing Failure"
     else:
-
         r = random.random()
         if r < 0.20:
             delivery_status = "failed"
+            failure_reason = "Carrier Congestion"
         elif r < 0.60:
             delivery_status = "delivered"
         elif r < 0.85:
@@ -67,21 +63,13 @@ async def simulate_delivery(payload: ChannelPayload):
             delivery_status = "clicked"
 
     webhook_payload = {
-
-        "communication_id":
-            payload.communication_id,
-
-        "status":
-            delivery_status,
-
-        "reason":
-            failure_reason
+        "communication_id": payload.communication_id,
+        "status": delivery_status,
+        "reason": failure_reason
     }
 
     try:
-
         async with httpx.AsyncClient() as client:
-
             response = await client.post(
                 CRM_WEBHOOK_URL,
                 json=webhook_payload,
@@ -95,10 +83,7 @@ async def simulate_delivery(payload: ChannelPayload):
             )
 
     except Exception as e:
-
-        print(
-            f"Webhook Error: {str(e)}"
-        )
+        print(f"Webhook Error: {str(e)}")
 
 
 # ====================================================
@@ -120,17 +105,10 @@ async def send_message(
     )
 
     return {
-
         "status": "queued",
-
-        "communication_id":
-            payload.communication_id,
-
-        "channel":
-            payload.channel,
-
-        "recipient":
-            payload.recipient_identifier
+        "communication_id": payload.communication_id,
+        "channel": payload.channel,
+        "recipient": payload.recipient_identifier
     }
 
 
@@ -140,14 +118,9 @@ async def send_message(
 
 @app.get("/")
 async def health():
-
     return {
-
-        "service":
-            "EchoHeal Channel Service",
-
-        "status":
-            "running"
+        "service": "EchoHeal Channel Service",
+        "status": "running"
     }
 
 
@@ -156,9 +129,7 @@ async def health():
 # ====================================================
 
 if __name__ == "__main__":
-
     import uvicorn
-
     uvicorn.run(
         app,
         host="127.0.0.1",

@@ -41,7 +41,7 @@ class ChannelPayload(BaseModel):
 async def simulate_delivery(payload: ChannelPayload):
 
     # Simulate network delay
-    await asyncio.sleep(3)
+    await asyncio.sleep(0)
 
     # Initialize safety variables to avoid UnboundLocalError
     delivery_status = "failed"

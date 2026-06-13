@@ -1,350 +1,101 @@
 import streamlit as st
 import httpx
 import pandas as pd
-import os
 
+# Dynamic link that reads your cloud setting, falls back to local
 BACKEND_URL = st.secrets.get("BACKEND_URL", "http://127.0.0.1:8000")
 
+# ====================================
+# DATA FETCHING HOOKS
+# ====================================
+
 def get_analytics():
-
     try:
-
-        response = httpx.get(
-            f"{BACKEND_URL}/api/analytics/overview",
-            timeout=5
-        )
-
-        st.write("Status Code:", response.status_code)
-        st.write("Response Text:", response.text)
-
+        response = httpx.get(f"{BACKEND_URL}/api/analytics/overview", timeout=10)
         if response.status_code == 200:
             return response.json()
-
     except Exception as e:
-
-        st.error(
-            f"Analytics Error: {str(e)}"
-        )
-
+        st.error(f"Analytics Error: {str(e)}")
     return {}
 
 def get_customers():
-
     try:
-
-        response = httpx.get(
-            f"{BACKEND_URL}/api/customers",
-            timeout=5
-        )
-
+        response = httpx.get(f"{BACKEND_URL}/api/customers", timeout=10)
         if response.status_code == 200:
             return response.json()
-
     except Exception as e:
-
-        st.error(
-            f"Customer API Error: {str(e)}"
-        )
-
+        st.error(f"Customer Error: {str(e)}")
     return []
 
 def get_inactive_customers():
-
     try:
-
-        response = httpx.get(
-            f"{BACKEND_URL}/api/segments/inactive",
-            timeout=5
-        )
-
+        response = httpx.get(f"{BACKEND_URL}/api/segments/inactive", timeout=10)
         if response.status_code == 200:
             return response.json()
-
     except Exception as e:
-
         st.error(f"Inactive Segment Error: {str(e)}")
-
-    return {}
-
+    return {"customers": [], "count": 0}
 
 def get_high_value_customers():
-
     try:
-
-        response = httpx.get(
-            f"{BACKEND_URL}/api/segments/high-value",
-            timeout=5
-        )
-
+        response = httpx.get(f"{BACKEND_URL}/api/segments/high-value", timeout=10)
         if response.status_code == 200:
             return response.json()
-
     except Exception as e:
-
         st.error(f"High Value Segment Error: {str(e)}")
-
-    return {}
-
+    return {"customers": [], "count": 0}
 
 def get_winter_buyers():
-
     try:
-
-        response = httpx.get(
-            f"{BACKEND_URL}/api/segments/winter-buyers",
-            timeout=5
-        )
-
+        response = httpx.get(f"{BACKEND_URL}/api/segments/winter-buyers", timeout=10)
         if response.status_code == 200:
             return response.json()
-
     except Exception as e:
-
-        st.error(f"Winter Buyers Error: {str(e)}")
-
-    return {}
-
-def generate_copilot(prompt):
-
-    try:
-
-        response = httpx.post(
-            f"{BACKEND_URL}/api/copilot",
-            json={
-                "prompt": prompt
-            },
-            timeout=60
-        )
-
-        if response.status_code == 200:
-            return response.json()
-
-    except Exception as e:
-
-        st.error(
-            f"Copilot Error: {str(e)}"
-        )
-
-    return None
-
-
-def generate_audience(prompt):
-
-    try:
-
-        response = httpx.post(
-            f"{BACKEND_URL}/api/audience-builder",
-            json={
-                "prompt": prompt
-            },
-            timeout=60
-        )
-
-        if response.status_code == 200:
-            return response.json()
-
-    except Exception as e:
-
-        st.error(
-            f"Audience Error: {str(e)}"
-        )
-
-    return None
-
-def generate_copilot(prompt):
-
-    try:
-
-        response = httpx.post(
-            f"{BACKEND_URL}/api/copilot",
-            json={
-                "prompt": prompt
-            },
-            timeout=60
-        )
-
-        if response.status_code == 200:
-            return response.json()
-
-    except Exception as e:
-
-        st.error(
-            f"Copilot Error: {str(e)}"
-        )
-
-    return {}
-
-
-def generate_audience(prompt):
-
-    try:
-
-        response = httpx.post(
-            f"{BACKEND_URL}/api/audience-builder",
-            json={
-                "prompt": prompt
-            },
-            timeout=60
-        )
-
-        if response.status_code == 200:
-            return response.json()
-
-    except Exception as e:
-
-        st.error(
-            f"Audience Builder Error: {str(e)}"
-        )
-
-    return {}
-
-def launch_campaign(
-    campaign_name,
-    channel,
-    message
-):
-
-    try:
-
-        response = httpx.post(
-
-            f"{BACKEND_URL}/api/campaigns/launch",
-
-            json={
-
-                "campaign_name":
-                    campaign_name,
-
-                "channel":
-                    channel,
-
-                "base_message":
-                    message
-            },
-
-            timeout=60
-        )
-
-        if response.status_code == 200:
-            return response.json()
-
-    except Exception as e:
-
-        st.error(
-            f"Campaign Error: {str(e)}"
-        )
-
-    return {}
+        st.error(f"Winter Segment Error: {str(e)}")
+    return {"customers": [], "count": 0}
 
 def get_dashboard_data():
-
     try:
-
-        response = httpx.get(
-            f"{BACKEND_URL}/api/dashboard/data",
-            timeout=5
-        )
-
+        response = httpx.get(f"{BACKEND_URL}/api/dashboard/data", timeout=10)
         if response.status_code == 200:
             return response.json()
-
     except Exception as e:
+        st.error(f"Dashboard Error: {str(e)}")
+    return {"logs": [], "ai_audit": []}
 
-        st.error(
-            f"Dashboard Error: {str(e)}"
-        )
 
-    return {
-        "logs": [],
-        "ai_audit": []
-    }
+# ====================================
+# AI STUDIO & CAMPAIGN EXECUTION HOOKS
+# ====================================
 
-def get_customers():
-
+def generate_copilot(prompt):
     try:
-
-        response = httpx.get(
-            f"{BACKEND_URL}/api/customers",
-            timeout=5
+        response = httpx.post(
+            f"{BACKEND_URL}/api/copilot",
+            json={"prompt": prompt},
+            timeout=60
         )
-
         if response.status_code == 200:
             return response.json()
-
     except Exception as e:
-
-        st.error(
-            f"Customer Error: {str(e)}"
-        )
-
-    return []
-
-def get_inactive_customers():
-
-    try:
-
-        response = httpx.get(
-            f"{BACKEND_URL}/api/segments/inactive",
-            timeout=5
-        )
-
-        if response.status_code == 200:
-            return response.json()
-
-    except Exception as e:
-
-        st.error(
-            f"Inactive Segment Error: {str(e)}"
-        )
-
+        st.error(f"Copilot Error: {str(e)}")
     return {}
 
-
-def get_high_value_customers():
-
+def generate_audience(prompt):
     try:
-
-        response = httpx.get(
-            f"{BACKEND_URL}/api/segments/high-value",
-            timeout=5
+        response = httpx.post(
+            f"{BACKEND_URL}/api/audience-builder",
+            json={"prompt": prompt},
+            timeout=60
         )
-
         if response.status_code == 200:
             return response.json()
-
     except Exception as e:
-
-        st.error(
-            f"High Value Segment Error: {str(e)}"
-        )
-
-    return {}
-
-
-def get_winter_buyers():
-
-    try:
-
-        response = httpx.get(
-            f"{BACKEND_URL}/api/segments/winter-buyers",
-            timeout=5
-        )
-
-        if response.status_code == 200:
-            return response.json()
-
-    except Exception as e:
-
-        st.error(
-            f"Winter Segment Error: {str(e)}"
-        )
-
+        st.error(f"Audience Builder Error: {str(e)}")
     return {}
 
 def launch_campaign(campaign_name, channel, message):
-
     try:
-
         response = httpx.post(
             f"{BACKEND_URL}/api/campaigns/launch",
             json={
@@ -354,32 +105,11 @@ def launch_campaign(campaign_name, channel, message):
             },
             timeout=120
         )
-
         if response.status_code == 200:
             return response.json()
-
     except Exception as e:
         st.error(f"Campaign Error: {str(e)}")
-
     return None
-
-
-def get_dashboard_data():
-
-    try:
-
-        response = httpx.get(
-            f"{BACKEND_URL}/api/dashboard/data",
-            timeout=10
-        )
-
-        if response.status_code == 200:
-            return response.json()
-
-    except Exception as e:
-        st.error(f"Dashboard Error: {str(e)}")
-
-    return {"logs": [], "ai_audit": []}
 
 st.set_page_config(
     page_title="EchoHeal",

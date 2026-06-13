@@ -40,28 +40,27 @@ class ChannelPayload(BaseModel):
 
 async def simulate_delivery(payload: ChannelPayload):
 
-    # Simulate network delay
+    # Set to 0 for instant cloud updates!
     await asyncio.sleep(0)
 
-    # Initialize safety variables to avoid UnboundLocalError
-    delivery_status = "failed"
-    failure_reason = None
+    # Initialize safety variables with default strings
+    delivery_status = "delivered"
+    failure_reason = "None" # Keep it as a string to protect validation pipeline
 
-    # 20% chance of failure
-    if random.random() < 0.20:
+    # Simple, flat probability logic
+    r = random.random()
+    if r < 0.15:
         delivery_status = "failed"
         failure_reason = "Carrier Routing Failure"
+    elif r < 0.30:
+        delivery_status = "failed"
+        failure_reason = "Carrier Congestion"
+    elif r < 0.65:
+        delivery_status = "delivered"
+    elif r < 0.85:
+        delivery_status = "read"
     else:
-        r = random.random()
-        if r < 0.20:
-            delivery_status = "failed"
-            failure_reason = "Carrier Congestion"
-        elif r < 0.60:
-            delivery_status = "delivered"
-        elif r < 0.85:
-            delivery_status = "read"
-        else:
-            delivery_status = "clicked"
+        delivery_status = "clicked"
 
     webhook_payload = {
         "communication_id": payload.communication_id,
@@ -79,12 +78,13 @@ async def simulate_delivery(payload: ChannelPayload):
 
             print(
                 f"Webhook Sent -> "
-                f"{response.status_code} | "
-                f"{delivery_status}"
+                f"URL: {CRM_WEBHOOK_URL} | "
+                f"Status Code: {response.status_code} | "
+                f"Delivery: {delivery_status}"
             )
 
     except Exception as e:
-        print(f"Webhook Error: {str(e)}")
+        print(f"Webhook Transmission Crash: {str(e)}")
 
 
 # ====================================================

@@ -28,12 +28,8 @@ app.add_middleware(
 )
 
 
-DATA_LOGS = []
-AI_AUDITS = []
-
-# ====================================
-# MODELS
-# ====================================
+DATA_LOGS= []
+AI_AUDITS= []
 
 class CampaignPayload(BaseModel):
     campaign_name: str
@@ -58,7 +54,7 @@ async def execute_ai_self_healing(
     log_entry
 ):
 
-    fallback_channel = (
+    fallback_channel= (
         "SMS"
         if failed_channel == "WhatsApp"
         else "WhatsApp"
@@ -78,7 +74,7 @@ async def execute_ai_self_healing(
     Return only the final message.
     """
 
-    user_prompt = f"""
+    user_prompt= f"""
     Customer:
     {customer['name']}
 
@@ -99,9 +95,9 @@ async def execute_ai_self_healing(
             user_prompt
         )
 
-        log_entry["current_channel"] = fallback_channel
-        log_entry["delivery_status"] = "ai_rerouted"
-        log_entry["message_body"] = ai_text
+        log_entry["current_channel"]= fallback_channel
+        log_entry["delivery_status"]= "ai_rerouted"
+        log_entry["message_body"]= ai_text
 
         AI_AUDITS.append({
 
@@ -134,11 +130,7 @@ async def execute_ai_self_healing(
         print(
             f"AI Recovery Error: {str(e)}"
         )
-
-# ====================================
-# HEALTH CHECK
-# ====================================
-
+        
 @app.get("/")
 async def home():
 
@@ -146,11 +138,6 @@ async def home():
         "status": "running",
         "service": "EchoHeal CRM Backend"
     }
-
-
-# ====================================
-# DASHBOARD
-# ====================================
 
 @app.get("/api/dashboard/data")
 async def dashboard():
@@ -160,29 +147,21 @@ async def dashboard():
         "ai_audit": AI_AUDITS
     }
 
-# ====================================
-# WEBHOOK RECEIVER
-# ====================================
 @app.post("/api/webhooks/receipt")
 async def receive_receipt(payload: ReceiptPayload):
-    # Ensure ID is processed consistently as an integer
-    customer_id = int(payload.communication_id)
-    
-    customer = next((c for c in CUSTOMERS if c["id"] == customer_id), None)
+    customer_id= int(payload.communication_id)
+    customer= next((c for c in CUSTOMERS if c["id"] == customer_id), None)
     if not customer:
         print(f"❌ Webhook Error: Customer ID {customer_id} not found!")
         return {"error": "customer not found"}
 
-    # Directly match the integer customer_id against the stored log entry ID
     log_entry = next((log for log in DATA_LOGS if int(log["communication_id"]) == customer_id), None)
     if not log_entry:
         print(f"❌ Webhook Error: Log entry for ID {customer_id} not found in DATA_LOGS!")
         return {"error": "log not found"}
 
-    # Update base status
     log_entry["delivery_status"] = payload.status
 
-    # Trigger AI self-healing immediately upon receiving a failure payload
     if payload.status == "failed":
         print(f"🚨 Failure detected for {customer['name']}. Triggering AI Recovery...")
         await execute_ai_self_healing(
@@ -194,10 +173,6 @@ async def receive_receipt(payload: ReceiptPayload):
         )
     print(f"✅ WEBHOOK UPDATE SUCCESS -> {customer['name']} | Status: {log_entry['delivery_status']}")
     return {"status": "processed"}
-
-# ====================================
-# ANALYTICS
-# ====================================
 
 @app.get("/api/analytics/overview")
 async def analytics():
@@ -224,11 +199,6 @@ async def analytics():
         "inactive_customers": inactive,
         "high_value_customers": high_value
     }
-
-
-# ====================================
-# SEGMENTS
-# ====================================
 
 @app.get("/api/segments/inactive")
 async def inactive_segment():
@@ -281,10 +251,6 @@ async def winter_buyers():
     }
 
 
-# ====================================
-# AI CRM COPILOT
-# ====================================
-
 @app.post("/api/copilot")
 async def copilot(req: CopilotRequest):
 
@@ -307,11 +273,6 @@ async def copilot(req: CopilotRequest):
     return {
         "response": result
     }
-
-
-# ====================================
-# AI AUDIENCE BUILDER
-# ====================================
 
 @app.post("/api/audience-builder")
 async def audience_builder(req: CopilotRequest):
@@ -349,11 +310,6 @@ async def audience_builder(req: CopilotRequest):
     return {
         "audience": result
     }
-
-
-# ====================================
-# CAMPAIGN LAUNCH
-# ====================================
 
 @app.post("/api/campaigns/launch")
 async def launch_campaign(

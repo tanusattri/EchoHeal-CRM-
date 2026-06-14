@@ -8,6 +8,40 @@ Instead of treating campaign delivery as a one-way process, EchoHeal introduces 
 
 ---
 
+# 🚀 Live Demo
+
+### Frontend Application
+
+https://7t34w5hqnsds2xqzeuxa7k.streamlit.app/
+
+### Backend API
+
+https://echoheal-backend-v2.onrender.com
+
+---
+
+# ⚡ Quick Evaluation Guide
+
+**No local setup is required.**
+
+The application is fully deployed and ready to use.
+
+To evaluate the project:
+
+1. Open the Streamlit application.
+2. Navigate through Dashboard, Customers, Segments, AI Studio and Campaign Center.
+3. Launch a campaign from the Campaign Center.
+4. Observe delivery tracking updates.
+5. View AI-generated recovery actions for failed communications.
+
+The backend services are already deployed and connected.
+
+Recruiters and reviewers only need to open the Streamlit application to experience the complete workflow.
+
+No backend startup, environment setup, API configuration or local execution is required.
+
+---
+
 # Why EchoHeal?
 
 Modern CRM systems excel at sending campaigns but often struggle when communication breaks.
@@ -370,74 +404,76 @@ The delivery simulation layer.
 
 # Installation
 
-## Clone Repository
+# Running The Project Locally (Optional)
+
+The application is already deployed and can be evaluated directly through the live demo.
+
+### Live Application
+
+Frontend:
+
+https://7t34w5hqnsds2xqzeuxa7k.streamlit.app/
+
+Backend:
+
+https://echoheal-backend-v2.onrender.com
+
+---
+
+## Local Setup (For Developers)
+
+### Clone Repository
 
 ```bash
 git clone <your-repository-url>
 cd echoheal
 ```
 
----
+### Create Virtual Environment
 
-## Create Virtual Environment
-
-### Windows
+#### Windows
 
 ```bash
 python -m venv venv
 venv\Scripts\activate
 ```
 
-### macOS/Linux
+#### macOS/Linux
 
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 ```
 
----
-
-## Install Dependencies
+### Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
----
-
-## Setup Environment Variables
-
-Create a `.env` file.
+### Setup Environment Variables
 
 ```env
 GROQ_API_KEY=your_groq_api_key
 ```
 
----
+### Start Backend
 
-# Quick Demo Workflow
-
-```text
-Launch Campaign
-        ↓
-Channel Service Receives Message
-        ↓
-Delivery Simulation
-        ↓
-Webhook Callback
-        ↓
-Delivery Success OR Failure
-        ↓
-Failure Detected
-        ↓
-AI Recovery Agent Triggered
-        ↓
-Fallback Message Generated
-        ↓
-Communication Restored
+```bash
+uvicorn main:app --reload
 ```
 
----
+### Start Channel Service
+
+```bash
+uvicorn channel_service:app --reload --port 8001
+```
+
+### Start Frontend
+
+```bash
+streamlit run app.py
+```
 
 # Future Scope
 
@@ -478,3 +514,35 @@ By combining AI reasoning, delivery simulation, webhook-driven workflows, and au
 Rather than functioning as a simple campaign tool, EchoHeal represents a step toward intelligent, resilient, and self-healing customer engagement infrastructure.
 
 > Built to explore the future of AI-driven communication orchestration.
+
+# Deployment
+
+### Frontend
+
+Deployed on Streamlit Cloud
+
+https://7t34w5hqnsds2xqzeuxa7k.streamlit.app/
+
+### Backend
+
+Deployed on Render
+
+https://echoheal-backend-v2.onrender.com
+
+### Architecture
+
+```text
+Streamlit Frontend
+        ↓
+Render FastAPI Backend
+        ↓
+Groq AI Layer
+        ↓
+Campaign Engine
+        ↓
+Delivery Tracking
+        ↓
+AI Self-Healing Workflow
+```
+
+The deployed version is fully functional and ready for evaluation.

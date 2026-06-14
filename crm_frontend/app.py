@@ -1,6 +1,7 @@
 import streamlit as st
 import httpx
 import pandas as pd
+import time
 
 # Dynamic link that reads your cloud setting, falls back to local
 BACKEND_URL = st.secrets.get("BACKEND_URL", "https://echoheal-backend-v2.onrender.com")
@@ -59,6 +60,18 @@ def get_dashboard_data():
         st.error(f"Dashboard Error: {str(e)}")
     return {"logs": [], "ai_audit": []}
 
+def check_backend_health():
+    """Pings the backend home route to verify it is warm and awake."""
+    try:
+        # Fast timeout initially to see if it's already awake
+        response = httpx.get(f"{BACKEND_URL}/", timeout=3.0)
+        if response.status_code == 200:
+            return True
+    except (httpx.ConnectTimeout, httpx.ReadTimeout, httpx.RequestError):
+        # Server is likely sleeping
+        return False
+    return False
+
 # ====================================
 # AI STUDIO & CAMPAIGN EXECUTION HOOKS
 # ====================================
@@ -103,6 +116,33 @@ st.set_page_config(
 st.title("⚡ EchoHeal CRM")
 
 st.success("Frontend Connected")
+if "backend_awake" not in st.session_state:
+    st.session_state["backend_awake"] = False
+if not st.session_state["backend_awake"]:
+    with st.spinner("⏳ Connecting to EchoHeal Cloud Infrastructure..."):
+        if check_backend_health():
+            st.session_state["backend_awake"] = True
+            st.rerun()
+        else:
+            st.toast("☁️ Cloud container sleep detected. Booting instance...")
+            st.warning("⚠️ **Cloud Server Warm-Up Note:** The backend is currently waking up from its free-tier inactive sleep state.")
+            progress_bar = st.progress(0)
+            status_text = st.empty()
+            for percent_complete in range(100):
+                time.sleep(0.35)
+                progress_bar.progress(percent_complete + 1)
+                status_text.caption(f"🔧 Synchronizing multi-service nodes... {percent_complete + 1}% complete")
+                if percent_complete > 40 and percent_complete % 10 == 0:
+                    if check_backend_health():
+                        break
+            if check_backend_health():
+                st.session_state["backend_awake"] = True
+                st.success("⚡ Infrastructure Online! Loading CRM modules...")
+                time.sleep(1.5)
+                st.rerun()
+            else:
+                st.error("🛑 Connection took longer than expected. Please manually refresh this page.")
+                st.stop()
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs([
     "📊 Dashboard",

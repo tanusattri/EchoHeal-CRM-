@@ -7,7 +7,7 @@ load_dotenv()
 
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 
-print("GROQ_API_KEY =", GROQ_API_KEY)
+print("GROQ_API_KEY=", GROQ_API_KEY)
 
 
 async def ask_groq(system_prompt: str, user_prompt: str):
@@ -42,6 +42,6 @@ async def ask_groq(system_prompt: str, user_prompt: str):
                 f"Groq Error: {response.text}"
             )
 
-        data = response.json()
+        data= response.json()
 
         return data["choices"][0]["message"]["content"]

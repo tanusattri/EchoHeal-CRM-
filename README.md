@@ -46,13 +46,13 @@ No backend startup, environment setup, API configuration or local execution is r
 
 Modern CRM systems excel at sending campaigns but often struggle when communication breaks.
 
-A failed WhatsApp message, undelivered SMS, or routing failure typically requires manual intervention, leading to lost engagement opportunities and poor customer experiences.
+A failed WhatsApp message, undelivered SMS or routing failure typically requires manual intervention, leading to lost engagement opportunities and poor customer experiences.
 
 EchoHeal reimagines CRM as an intelligent communication system.
 
 Rather than simply reporting failures, the platform actively responds to them through AI-powered recovery workflows, ensuring customer communication continues even when delivery channels fail.
 
-This creates a more resilient, automated, and adaptive engagement pipeline.
+This creates a more resilient, automated and adaptive engagement pipeline.
 
 ---
 
@@ -479,7 +479,7 @@ streamlit run app.py
 
 EchoHeal is designed as a foundation for intelligent CRM infrastructure.
 
-Future enhancements may include persistent databases, real-time WebSocket dashboards, predictive failure detection, customer-level personalization, campaign analytics, distributed channel routing, and autonomous communication optimization.
+Future enhancements may include persistent databases, real-time WebSocket dashboards, predictive failure detection, customer-level personalization, campaign analytics, distributed channel routing and autonomous communication optimization.
 
 These additions would transform EchoHeal from a CRM simulation platform into a production-grade AI communication orchestration system.
 
@@ -511,7 +511,7 @@ EchoHeal demonstrates how customer engagement systems become significantly more 
 
 By combining AI reasoning, delivery simulation, webhook-driven workflows, and autonomous recovery, the platform showcases how future CRM systems can move beyond tracking communication and begin actively managing it.
 
-Rather than functioning as a simple campaign tool, EchoHeal represents a step toward intelligent, resilient, and self-healing customer engagement infrastructure.
+Rather than functioning as a simple campaign tool, EchoHeal represents a step toward intelligent, resilient and self-healing customer engagement infrastructure.
 
 > Built to explore the future of AI-driven communication orchestration.
 

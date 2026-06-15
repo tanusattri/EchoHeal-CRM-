@@ -8,7 +8,7 @@ Instead of treating campaign delivery as a one-way process, EchoHeal introduces 
 
 ---
 
-# 🚀 Live Demo
+# Live Demo
 
 ### Frontend Application
 

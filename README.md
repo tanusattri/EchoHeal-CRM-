@@ -1,10 +1,10 @@
-# EchoHeal — AI-Powered CRM Campaign Orchestration & Self-Healing Communication Platform
+# EchoHeal- AI-Powered CRM Campaign Orchestration & Self-Healing Communication Platform
 
-> **An intelligent CRM system that combines audience segmentation, AI campaign generation, multi-channel communication, delivery tracking, and autonomous recovery into a unified customer engagement workflow.**
+> **An intelligent CRM system that combines audience segmentation, AI campaign generation, multi-channel communication, delivery tracking and autonomous recovery into a unified customer engagement workflow.**
 
 Built for modern customer engagement platforms, EchoHeal demonstrates how AI can move beyond content generation and actively participate in communication orchestration.
 
-Instead of treating campaign delivery as a one-way process, EchoHeal introduces an adaptive workflow where communication failures are detected, analyzed, and automatically recovered using AI-generated fallback messaging.
+Instead of treating campaign delivery as a one-way process, EchoHeal introduces an adaptive workflow where communication failures are detected, analyzed and automatically recovered using AI-generated fallback messaging.
 
 ---
 

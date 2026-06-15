@@ -3,7 +3,6 @@ import httpx
 import pandas as pd
 import time
 
-# Dynamic link that reads your cloud setting, falls back to local
 BACKEND_URL = st.secrets.get("BACKEND_URL", "https://echoheal-backend-v2.onrender.com")
 
 def get_analytics():
@@ -63,18 +62,12 @@ def get_dashboard_data():
 def check_backend_health():
     """Pings the backend home route to verify it is warm and awake."""
     try:
-        # Fast timeout initially to see if it's already awake
         response = httpx.get(f"{BACKEND_URL}/", timeout=3.0)
         if response.status_code == 200:
             return True
     except (httpx.ConnectTimeout, httpx.ReadTimeout, httpx.RequestError):
-        # Server is likely sleeping
         return False
     return False
-
-# ====================================
-# AI STUDIO & CAMPAIGN EXECUTION HOOKS
-# ====================================
 
 def generate_copilot(prompt):
     try:
@@ -125,7 +118,7 @@ if not st.session_state["backend_awake"]:
             st.rerun()
         else:
             st.toast("☁️ Cloud container sleep detected. Booting instance...")
-            st.warning("⚠️ **Cloud Server Warm-Up Note:** The backend is currently waking up from its free-tier inactive sleep state.")
+            st.warning(" **Cloud Server Warm-Up Note:** The backend is currently waking up from its free-tier inactive sleep state.")
             progress_bar = st.progress(0)
             status_text = st.empty()
             for percent_complete in range(100):
@@ -368,10 +361,6 @@ with tab4:
         "Audience Builder"
     ])
 
-    # =========================================
-    # CRM COPILOT
-    # =========================================
-
     with copilot_tab:
 
         st.subheader(
@@ -420,10 +409,6 @@ with tab4:
 {result.get('response', 'No response generated')}
 """
                         )
-
-    # =========================================
-    # AUDIENCE BUILDER
-    # =========================================
 
     with audience_tab:
 
@@ -480,10 +465,6 @@ with tab5:
 
     st.caption("End-to-End Campaign Execution + AI Recovery System")
 
-    # =========================
-    # CAMPAIGN LAUNCH
-    # =========================
-
     st.subheader("🚀 Launch Campaign")
 
     campaign_name = st.text_input(
@@ -514,10 +495,6 @@ with tab5:
 
     st.divider()
 
-    # =========================
-    # DELIVERY TRACKING
-    # =========================
-
     st.header("📡 Delivery Tracking (Live Logs)")
 
     dashboard = get_dashboard_data()
@@ -538,11 +515,6 @@ with tab5:
         st.info("No delivery logs yet.")
 
     st.divider()
-
-    # =========================
-    # AI SELF HEALING
-    # =========================
-
     st.header("🧠 AI Self-Healing System")
 
     ai_audit = dashboard.get("ai_audit", [])
@@ -567,10 +539,6 @@ with tab5:
         st.info("No AI recovery events yet.")
 
     st.divider()
-
-    # =========================
-    # RECOVERY TIMELINE
-    # =========================
 
     st.header("🕒 Recovery Timeline")
 

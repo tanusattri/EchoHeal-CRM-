@@ -20,7 +20,7 @@ https://echoheal-backend-v2.onrender.com
 
 ---
 
-# ⚡ Quick Evaluation Guide
+# Quick Evaluation Guide
 
 **No local setup is required.**
 
